@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DemocracyUS | Federal Election Commission</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fec: {
+                            blue: '#0b1e42', // Official US Gov Blue
+                            red: '#b91c1c',
+                            light: '#f1f5f9',
+                            gold: '#d4af37'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-item.active { border-bottom: 3px solid #b91c1c; color: #ffffff; font-weight: 600; }
+        .party-dem { background-color: #1e3a8a; color: white; }
+        .party-rep { background-color: #b91c1c; color: white; }
+        .party-ind { background-color: #d97706; color: white; }
+        .party-lib { background-color: #f59e0b; color: black; }
+        .party-green { background-color: #15803d; color: white; }
+        
+        /* Smooth transition for list items */
+        .list-enter { opacity: 0; transform: translateY(10px); }
+        .list-enter-active { opacity: 1; transform: translateY(0); transition: opacity 300ms, transform 300ms; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header & Navigation -->
+    <header class="bg-fec-blue text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchPage('home')">
+                    <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center border-2 border-fec-gold text-fec-blue">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wider text-slate-300 font-bold">DemocracyUS</span>
+                        <span class="text-xl md:text-2xl font-serif font-bold leading-none">Federal Election Commission</span>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-8 h-full items-center">
+                    <button onclick="switchPage('home')" id="nav-home" class="nav-item h-full px-1 flex items-center hover:text-slate-200 transition-colors active text-slate-300">News & Press</button>
+                    <button onclick="switchPage('candidates')" id="nav-candidates" class="nav-item h-full px-1 flex items-center hover:text-slate-200 transition-colors text-slate-300">Candidates</button>
+                    <button onclick="switchPage('filings')" id="nav-filings" class="nav-item h-full px-1 flex items-center hover:text-slate-200 transition-colors text-slate-300">Filings & Data</button>
+                    <button onclick="switchPage('calendar')" id="nav-calendar" class="nav-item h-full px-1 flex items-center hover:text-slate-200 transition-colors text-slate-300">Election Calendar</button>
+                </nav>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl text-white focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 border-t border-blue-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <button onclick="switchPage('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-800">News & Press</button>
+                <button onclick="switchPage('candidates'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-blue-800">Candidates</button>
+                <button onclick="switchPage('filings'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-blue-800">Filings & Data</button>
+                <button onclick="switchPage('calendar'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-blue-800">Election Calendar</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- PAGE 1: HOME (NEWS) -->
+        <section id="page-home" class="fade-in block">
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="md:flex">
+                    <div class="md:w-2/3 p-8">
+                        <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wide mb-4">Featured Announcement</span>
+                        <h1 class="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-4" id="hero-title">Commission Announces New Transparency Rules</h1>
+                        <p class="text-slate-600 mb-6 leading-relaxed" id="hero-desc">
+                            The DemocracyUS Federal Election Commission has voted unanimously to adopt new filing requirements for all registered committees.
+                        </p>
+                        <a href="#" class="inline-flex items-center px-5 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fec-blue hover:bg-blue-900">
+                            Read Full Press Release
+                        </a>
+                    </div>
+                    <div class="md:w-1/3 bg-slate-100 border-l border-slate-200 p-6 flex flex-col justify-center">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-300 pb-2">Quick Links</h3>
+                        <ul class="space-y-3">
+                            <li><a href="#" class="flex items-center text-blue-700 hover:underline"><i class="fas fa-chevron-right text-xs mr-2"></i> Register a Committee</a></li>
+                            <li><a href="#" class="flex items-center text-blue-700 hover:underline"><i class="fas fa-chevron-right text-xs mr-2"></i> Report a Violation</a></li>
+                            <li><a href="#" class="flex items-center text-blue-700 hover:underline"><i class="fas fa-chevron-right text-xs mr-2"></i> Search Filings</a></li>
+                            <li><a href="#" class="flex items-center text-blue-700 hover:underline"><i class="fas fa-chevron-right text-xs mr-2"></i> Voting Guide</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-serif font-bold text-slate-900 mb-6 pb-2 border-b border-slate-300">Latest News & Updates</h2>
+            <!-- Dynamic News Grid -->
+            <div id="news-grid" class="grid md:grid-cols-3 gap-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- PAGE 2: CANDIDATE INFO -->
+        <section id="page-candidates" class="hidden fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-serif font-bold text-slate-900">Candidate Information</h2>
+                <p class="text-slate-600 mt-2">Browse registered candidates for the upcoming election cycle.</p>
+            </div>
+
+            <!-- Advanced Filter Bar -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Search</label>
+                        <input type="text" id="candidateSearch" onkeyup="filterCandidates()" placeholder="Name or Keyword" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Filter by Party</label>
+                        <select id="partyFilter" onchange="filterCandidates()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                            <option value="">All Parties</option>
+                            <option value="Democrat">Democrat</option>
+                            <option value="Republican">Republican</option>
+                            <option value="Independent">Independent</option>
+                            <option value="Libertarian">Libertarian</option>
+                            <option value="Green">Green</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Filter by Office</label>
+                        <select id="roleFilter" onchange="filterCandidates()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                            <option value="">All Offices</option>
+                            <option value="Presidential">Presidential</option>
+                            <option value="Senate">Senate</option>
+                            <option value="House">House</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="candidate-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript will inject cards here -->
+            </div>
+        </section>
+
+        <!-- PAGE 3: FILINGS & DATA -->
+        <section id="page-filings" class="hidden fade-in">
+             <div class="flex justify-between items-end mb-6 pb-2 border-b border-slate-300">
+                <div>
+                    <h2 class="text-3xl font-serif font-bold text-slate-900">Campaign Finance & Filings</h2>
+                    <p class="text-slate-600 text-sm mt-1">Real-time repository of all submitted forms and financial disclosures.</p>
+                </div>
+                <button onclick="initChart()" class="bg-slate-100 text-slate-700 px-4 py-2 rounded text-sm hover:bg-slate-200 border border-slate-300 shadow-sm">
+                    <i class="fas fa-sync mr-2"></i> Refresh Data
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="md:col-span-2 bg-white p-4 rounded shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase">Total Funds Raised by Party</h3>
+                        <select id="chartType" onchange="initChart()" class="text-xs border rounded p-1">
+                            <option value="bar">Bar Chart</option>
+                            <option value="pie">Pie Chart</option>
+                        </select>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                     <div class="bg-white p-4 rounded shadow-sm border border-slate-200 h-1/3 flex flex-col justify-center border-l-4 border-l-green-600">
+                        <div class="text-xs text-slate-500 uppercase font-bold">Total Raised (Cycle)</div>
+                        <div class="text-3xl font-bold text-slate-800">$12,450,000</div>
+                    </div>
+                     <div class="bg-white p-4 rounded shadow-sm border border-slate-200 h-1/3 flex flex-col justify-center border-l-4 border-l-blue-600">
+                        <div class="text-xs text-slate-500 uppercase font-bold">Active Committees</div>
+                        <div class="text-3xl font-bold text-slate-800">42</div>
+                    </div>
+                     <div class="bg-white p-4 rounded shadow-sm border border-slate-200 h-1/3 flex flex-col justify-center border-l-4 border-l-yellow-500">
+                        <div class="text-xs text-slate-500 uppercase font-bold">Filings Today</div>
+                        <div class="text-3xl font-bold text-slate-800">18</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-slate-800">Filings Database</h3>
+                    <input type="text" id="filingSearch" onkeyup="renderFilings()" placeholder="Filter filings..." class="text-xs border rounded px-2 py-1 w-48">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100" onclick="sortFilings('date')">Date <i class="fas fa-sort ml-1"></i></th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100" onclick="sortFilings('filer')">Filer / Committee <i class="fas fa-sort ml-1"></i></th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Form Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Period</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filings-body" class="bg-white divide-y divide-slate-200">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 4: ELECTION CALENDAR -->
+        <section id="page-calendar" class="hidden fade-in">
+             <div class="mb-10 text-center">
+                <h2 class="text-3xl font-serif font-bold text-slate-900">Election Calendar</h2>
+                <p class="text-slate-600 mt-2">Key dates and deadlines for the 2025 DemocracyUS Election Cycle.</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div id="calendar-timeline" class="relative border-l-4 border-slate-300 ml-6 md:ml-10 space-y-12">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-8">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center space-x-2 mb-4">
+                     <i class="fas fa-scale-balanced text-2xl text-white"></i>
+                     <span class="text-white font-serif font-bold text-lg">DemocracyUS FEC</span>
+                </div>
+                <p class="text-sm leading-relaxed max-w-sm">
+                    The Federal Election Commission (FEC) is the independent regulatory agency charged with administering and enforcing the federal campaign finance law.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold uppercase text-xs tracking-wider mb-4">Resources</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Campaign Guide</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Enforcement Statistics</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold uppercase text-xs tracking-wider mb-4">Legal</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">No FEAR Act</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-slate-800 text-center text-xs">
+            &copy; 2025 DemocracyUS Mock Government. Not affiliated with the real US Government.
+        </div>
+    </footer>
+
+    <!-- DYNAMIC DATA & LOGIC -->
+    <script>
+        // --- 1. EASY CONFIGURATION (EDIT EVERYTHING HERE) ---
+
+        // A. CANDIDATES DATA
+        const candidates = [
+            {
+                name: "John Doe",
+                party: "Democrat", 
+                role: "Presidential",
+                image: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+                status: "Active",
+                bio: "A placeholder bio for Candidate John Doe. Committed to economic reform and transparent governance.",
+                funds: "$4.2M"
+            },
+            {
+                name: "Jane Smith",
+                party: "Republican",
+                role: "Presidential",
+                image: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+                status: "Active",
+                bio: "Focused on national security and infrastructure development. Bringing experience to the table.",
+                funds: "$3.8M"
+            },
+            {
+                name: "Alex Johnson",
+                party: "Independent",
+                role: "Senate",
+                image: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+                status: "Pending Filing",
+                bio: "Running on a platform of unity and independent thought. Breaking the two-party system.",
+                funds: "$0.5M"
+            }
+        ];
+
+        // B. NEWS DATA (Home Page)
+        const newsItems = [
+            { date: "Dec 12, 2025", title: "Q4 Filing Deadline Approaching", text: "All principal campaign committees must file their quarterly reports by midnight on the 31st via the online portal." },
+            { date: "Dec 10, 2025", title: "Primary Debate Schedule Finalized", text: "The Commission has ratified the schedule for the upcoming party primary debates. Venues to be announced shortly." },
+            { date: "Dec 05, 2025", title: "System Maintenance Notification", text: "The e-Filing system will be undergoing scheduled maintenance this Sunday from 2:00 AM to 6:00 AM EST." },
+            { date: "Dec 01, 2025", title: "New Campaign Limits", text: "Contribution limits for the 2026 cycle have been adjusted for inflation. See the full table in the resources section." }
+        ];
+
+        // C. FILINGS DATA (Filings Page)
+        const filingsData = [
+            { date: "2025-12-12", filer: "Comm. to Elect Doe", form: "Form 3X", period: "Q3 2025", type: "form-3x" },
+            { date: "2025-12-11", filer: "Freedom & Liberty PAC", form: "Form 1", period: "Initial", type: "form-1" },
+            { date: "2025-12-10", filer: "Friends of Jane Smith", form: "Form 2", period: "N/A", type: "form-2" },
+            { date: "2025-12-09", filer: "Tech Forward Super PAC", form: "Form 24", period: "24h Notice", type: "form-24" },
+            { date: "2025-12-08", filer: "Green Earth Alliance", form: "Form 3X", period: "Q3 2025", type: "form-3x" },
+        ];
+
+        // D. CALENDAR DATA (Calendar Page)
+        const calendarEvents = [
+            { date: "Dec 15, 2025", title: "Candidate Registration Deadline", desc: "Last day for individuals to file Statement of Candidacy (Form 2).", color: "blue", highlight: false },
+            { date: "Dec 20, 2025", title: "First Presidential Debate", desc: "Held in the General Voice Channel. Topics include Economy and Foreign Policy.", color: "gray", highlight: false },
+            { date: "Jan 05, 2026", title: "Primary Election Day", desc: "Polls open at 8:00 AM EST and close at 8:00 PM EST.", color: "gray", highlight: false },
+            { date: "Jan 20, 2026", title: "General Election", desc: "The final vote for President and Congress. Make your voice heard.", color: "red", highlight: true },
+        ];
+
+        // --- 2. APPLICATION LOGIC ---
+
+        // Render Candidates
+        function renderCandidates() {
+            const container = document.getElementById('candidate-grid');
+            const searchVal = document.getElementById('candidateSearch').value.toLowerCase();
+            const partyFilter = document.getElementById('partyFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            
+            container.innerHTML = '';
+
+            const partyColors = {
+                'Democrat': { bg: 'bg-blue-900', tag: 'party-dem', label: 'Democratic Party' },
+                'Republican': { bg: 'bg-red-800', tag: 'party-rep', label: 'Republican Party' },
+                'Independent': { bg: 'bg-yellow-600', tag: 'party-ind', label: 'Independent' },
+                'Libertarian': { bg: 'bg-yellow-400', tag: 'party-lib', label: 'Libertarian' },
+                'Green': { bg: 'bg-green-700', tag: 'party-green', label: 'Green Party' },
+            };
+
+            const filtered = candidates.filter(c => {
+                const matchesSearch = c.name.toLowerCase().includes(searchVal) || c.party.toLowerCase().includes(searchVal);
+                const matchesParty = partyFilter === "" || c.party === partyFilter;
+                const matchesRole = roleFilter === "" || c.role === roleFilter;
+                return matchesSearch && matchesParty && matchesRole;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-10 text-slate-500">No candidates found matching criteria.</div>';
+                return;
+            }
+
+            filtered.forEach(c => {
+                const style = partyColors[c.party] || { bg: 'bg-slate-700', tag: 'bg-slate-700 text-white', label: c.party };
+                const card = `
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                    <div class="h-24 ${style.bg} relative">
+                        <div class="absolute -bottom-10 left-6">
+                            <img src="${c.image}" alt="${c.name}" class="h-20 w-20 rounded-full border-4 border-white object-cover bg-slate-200">
+                        </div>
+                        <div class="absolute top-4 right-4 bg-white px-2 py-1 rounded text-xs font-bold text-slate-800 shadow uppercase">
+                            ${c.role}
+                        </div>
+                    </div>
+                    <div class="pt-12 px-6 pb-6 flex-grow">
+                        <h3 class="text-xl font-bold text-slate-900">${c.name}</h3>
+                        <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${style.tag}">${style.label}</span>
+                        <p class="text-sm text-slate-600 mt-3 mb-4 line-clamp-3">${c.bio}</p>
+                        <div class="mb-4">
+                             <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                                <span>Funds Raised</span>
+                                <span class="text-slate-800">${c.funds}</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-1.5">
+                                <div class="bg-blue-600 h-1.5 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <span class="${c.status === 'Active' ? 'text-green-600' : 'text-slate-500'} font-semibold">
+                                <i class="fas ${c.status === 'Active' ? 'fa-check-circle' : 'fa-clock'}"></i> ${c.status}
+                            </span>
+                            <a href="#" class="text-blue-600 hover:underline">View Profile</a>
+                        </div>
+                    </div>
+                </div>`;
+                container.innerHTML += card;
+            });
+        }
+        
+        function filterCandidates() { renderCandidates(); }
+
+        // Render News
+        function renderNews() {
+            const container = document.getElementById('news-grid');
+            container.innerHTML = '';
+            newsItems.forEach(n => {
+                container.innerHTML += `
+                <article class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <span class="text-xs text-slate-500 font-semibold">${n.date}</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2 mb-3">${n.title}</h3>
+                    <p class="text-sm text-slate-600 mb-4">${n.text}</p>
+                    <a href="#" class="text-fec-red font-semibold text-sm hover:underline">Read More &rarr;</a>
+                </article>`;
+            });
+        }
+
+        // Render Filings with Sort
+        let sortCol = 'date';
+        let sortAsc = false;
+
+        function sortFilings(col) {
+            if(sortCol === col) sortAsc = !sortAsc;
+            else { sortCol = col; sortAsc = true; }
+            renderFilings();
+        }
+
+        function renderFilings() {
+            const container = document.getElementById('filings-body');
+            const search = document.getElementById('filingSearch').value.toLowerCase();
+            container.innerHTML = '';
+
+            const typeColors = {
+                'form-3x': 'bg-green-100 text-green-800',
+                'form-1': 'bg-yellow-100 text-yellow-800',
+                'form-2': 'bg-blue-100 text-blue-800',
+                'form-24': 'bg-red-100 text-red-800'
+            };
+
+            let filtered = filingsData.filter(f => f.filer.toLowerCase().includes(search) || f.form.toLowerCase().includes(search));
+
+            filtered.sort((a, b) => {
+                let valA = a[sortCol];
+                let valB = b[sortCol];
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            filtered.forEach(f => {
+                const badge = typeColors[f.type] || 'bg-gray-100 text-gray-800';
+                container.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${f.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">${f.filer}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge}">${f.form}</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${f.period}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="#" class="text-blue-600 hover:text-blue-900"><i class="fas fa-download"></i> PDF</a>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        // Render Calendar
+        function renderCalendar() {
+            const container = document.getElementById('calendar-timeline');
+            container.innerHTML = '';
+            
+            const colorMap = {
+                'blue': 'bg-fec-blue',
+                'gray': 'bg-slate-400',
+                'red': 'bg-fec-red'
+            };
+            const textMap = {
+                'blue': 'text-fec-blue',
+                'gray': 'text-slate-500',
+                'red': 'text-fec-red'
+            };
+
+            calendarEvents.forEach(e => {
+                const dotColor = colorMap[e.color] || 'bg-slate-400';
+                const textColor = textMap[e.color] || 'text-slate-500';
+                const highlightClass = e.highlight ? `border-l-4 border-l-${e.color === 'red' ? 'fec-red' : 'slate-500'}` : '';
+
+                container.innerHTML += `
+                <div class="relative pl-8 md:pl-12">
+                    <div class="absolute -left-3.5 ${dotColor} h-7 w-7 rounded-full border-4 border-slate-100"></div>
+                    <div class="flex flex-col md:flex-row md:items-center mb-1">
+                        <span class="text-sm font-bold ${textColor} uppercase tracking-wide md:w-32 flex-shrink-0">${e.date}</span>
+                        <h3 class="text-xl font-bold text-slate-800">${e.title}</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm ${highlightClass}">
+                        <p class="text-slate-600">${e.desc}</p>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // Navigation
+        function switchPage(pageId) {
+            const sections = ['home', 'candidates', 'filings', 'calendar'];
+            sections.forEach(id => {
+                document.getElementById('page-' + id).classList.add('hidden');
+                document.getElementById('nav-' + id).classList.remove('active');
+            });
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            const activeNav = document.getElementById('nav-' + pageId);
+            if(activeNav) activeNav.classList.add('active');
+            window.scrollTo(0, 0);
+
+            if(pageId === 'filings' && !window.chartInitialized) {
+                initChart();
+                window.chartInitialized = true;
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Chart
+        let chartInstance = null;
+        function initChart() {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            const type = document.getElementById('chartType').value;
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: ['Democrats', 'Republicans', 'Independents', 'Libertarians'],
+                    datasets: [{
+                        label: 'Funds Raised (Millions)',
+                        data: [5.2, 4.8, 1.2, 0.4],
+                        backgroundColor: ['#1e3a8a', '#b91c1c', '#d97706', '#f59e0b'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: type === 'pie', position: 'bottom' }
+                    },
+                    scales: type === 'bar' ? {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    } : {}
+                }
+            });
+        }
+
+        // Initialize Everything
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('nav-home').classList.add('active');
+            renderCandidates();
+            renderNews();
+            renderFilings();
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
